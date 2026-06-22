@@ -35,6 +35,11 @@ def transform_data(df, features):
     :param features: list of 2 features from the dataframe
     :return: transformed data as numpy array of shape (n, 2)
     """
+    two_col = df[features[0], features[1]]
+    np_arr = np.array()
+    """"" stopped herre """
+
+
     pass
     # return data
 
