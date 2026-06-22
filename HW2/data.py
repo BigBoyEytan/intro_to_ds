@@ -24,6 +24,7 @@ def add_new_columns(df):
     return df
 
 def data_analysis(df):
+    """base of 7 and 8"""
     """prints statistics on the transformed df"""
     print('describe output: ')
     print(df.describe().to_string())
@@ -40,7 +41,7 @@ def data_analysis(df):
                 d1[f'{col1},{col2}'] = df[col1].corr(df[col2])
 
 
-
+    """" 7 """
     print('Highest correlated are:')
     used_best = []
     dict_best = {}
@@ -62,7 +63,15 @@ def data_analysis(df):
     for key, value in dict_worst.items():
         print(f'({key}) ' + f'with {round(value, 6)}')
 
-    df.groupby('Event').mean(numeric_only=True)
+    """" 8 """
+    season_avgs = df.groupby('season_name')['t_diff'].mean()
+    l_of_unique_seasons = df['season_name'].unique().tolist()
+    for season in l_of_unique_seasons:
+        avg_val = season_avgs[season]
+        print(f"{season} average t_diff is {round(avg_val, 2)}")
+
+    overall_avg = df['t_diff'].mean()
+    print(f"All average t_diff is {overall_avg}")
 
 
 def to_season(x):
