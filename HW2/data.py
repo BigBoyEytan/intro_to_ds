@@ -25,8 +25,44 @@ def add_new_columns(df):
 
 def data_analysis(df):
     """prints statistics on the transformed df"""
+    print('describe output: ')
+    print(df.describe().to_string())
+    print()
+    print('corr output: ')
+    corr = df.corr(numeric_only=True)
+    print(corr.to_string())
+    print()
+
+    d1 ={}
+    for col1 in df.columns:
+        for col2 in df.columns:
+            if col1 != col2 and (not (f'{col1},{col2}' in d1)):
+                d1[f'{col1},{col2}'] = df[col1].corr(df[col2])
 
 
+
+    print('Highest correlated are:')
+    used_best = []
+    dict_best = {}
+    for i in range(5):
+        l1 = find_best_cor(d1, used_best)
+        dict_best[l1[0]] = l1[1]
+
+    for key, value in dict_best.items():
+        print(f'({key}) ' + f'with {round(value, 6)}')
+
+
+    print('Lowest correlated are: ')
+    used_worst = []
+    dict_worst = {}
+    for i in range(5):
+        l2 = find_worst_cor(d1, used_worst)
+        dict_worst[l2[0]] = l2[1]
+
+    for key, value in dict_worst.items():
+        print(f'({key}) ' + f'with {round(value, 6)}')
+
+    df.groupby('Event').mean(numeric_only=True)
 
 
 def to_season(x):
@@ -74,3 +110,27 @@ def get_t2_to_t1_dif(row):
     t_1 = row['t1']
     t_2 = row['t2']
     return t_1 - t_2
+
+
+def find_best_cor(d1,used_best):
+    max =0
+    best_key =''
+    for key, value in d1.items():
+        if key not in used_best and value > max:
+            max = value
+            best_key = key
+            used_best.append(key)
+
+    return [best_key,max]
+
+
+def find_worst_cor(d1,used_worst):
+    min =1
+    worst_key =''
+    for key, value in d1.items():
+        if key not in used_worst and value < min:
+            min = value
+            worst_key = key
+            used_worst.append(key)
+
+    return [worst_key,min]
