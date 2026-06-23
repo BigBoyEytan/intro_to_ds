@@ -24,10 +24,10 @@ def choose_initial_centroids(data, k):
     return data[indices]
 
 
-# ====================
 def load_data(path):
     """reads and returns the pandas DataFrame"""
     return pd.read_csv(path)
+
 
 def transform_data(df, features):
     """
@@ -39,33 +39,9 @@ def transform_data(df, features):
     :param features: list of 2 features from the dataframe
     :return: transformed data as numpy array of shape (n, 2)
     """
-    two_col_np_arr = df[features[0], features[1]].to_numpy()
-
-    min_and_max = get_min_max(two_col_np_arr)
-    min = min_and_max[0]
-    max = min_and_max[1]
-    max_min_dif = (max - min)
-
-    for row in two_col_np_arr.shape[0]:
-        for col in two_col_np_arr.shape[1]:
-            two_col_np_arr[row, col] = ( max -  two_col_np_arr[row, col] ) / max_min_dif
-
-    add_noise(two_col_np_arr)
-    return two_col_np_arr
-
-
-def get_min_max(arr_2d):
-    max = arr_2d[0][0]
-    min = arr_2d[0][0]
-
-    for row in arr_2d.shape[0]:
-        for col in arr_2d.shape[1]:
-            if(arr_2d[row][col] > max):
-                max = arr_2d[row][col]
-            elif(arr_2d[row][col] < min):
-                min = arr_2d[row][col]
-
-    return [min,max]
+    selected_df = df[features]
+    data_transformed = (selected_df - selected_df.min()) / (selected_df.max() - selected_df.min())
+    return add_noise(data_transformed.to_numpy())
 
 
 def kmeans(data, k):
@@ -123,21 +99,14 @@ def visualize_results(data, labels, centroids, path):
     plt.close('all')
 
 
-
-
-
 def dist(x, y):
     """
     Euclidean distance between vectors x, y
     :param x: numpy array of size n
     :param y: numpy array of size n
-    :return: the euclidean distance
+    :return: the Euclidean distance
     """
-    sumSquaredOfdiffrances =0
-    for n1,n2 in zip(x, y):
-        sumSquaredOfdiffrances += (n2-n1)**2
-
-    return np.sqrt(sumSquaredOfdiffrances)
+    return np.sqrt(np.sum((x - y) ** 2))
 
 
 def assign_to_clusters(data, centroids):
@@ -148,7 +117,7 @@ def assign_to_clusters(data, centroids):
     :return: numpy array of size n
     """
     labels = []
-
+    
     for elemnt in data:
         min_dist = float('inf')
         closest_index = -1
