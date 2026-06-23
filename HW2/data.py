@@ -38,7 +38,6 @@ def get_weekend_holiday_num(row):
 
 
 def data_analysis(df):
-    """base of 7 and 8"""
     """prints statistics on the transformed df"""
     print('describe output: ')
     print(df.describe().to_string())
@@ -48,65 +47,31 @@ def data_analysis(df):
     print(corr.to_string())
     print()
 
-    d1 ={}
-    for col1 in df.columns:
-        for col2 in df.columns:
-            if col1 != col2 and (not (f'{col1},{col2}' in d1)):
-                d1[f'{col1},{col2}'] = df[col1].corr(df[col2])
-
-
     """" 7 """
+    all_columns_corr = {}
+    columns = corr.columns
+    for i in range(len(columns)):
+        for j in range(i+1, len(columns)):
+            col1, col2 = columns[i], columns[j]
+            all_columns_corr[(col1, col2)] = corr.loc[col1, col2]
+    
+    highest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=True)[:5]
     print('Highest correlated are:')
-    used_best = []
-    dict_best = {}
-    for i in range(5):
-        l1 = find_best_cor(d1, used_best)
-        dict_best[l1[0]] = l1[1]
+    for idx, (pair, val) in enumerate(highest_corr, 1):
+        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
 
-    for key, value in dict_best.items():
-        print(f'({key}) ' + f'with {round(value, 6)}')
-
-
-    print('Lowest correlated are: ')
-    used_worst = []
-    dict_worst = {}
-    for i in range(5):
-        l2 = find_worst_cor(d1, used_worst)
-        dict_worst[l2[0]] = l2[1]
-
-    for key, value in dict_worst.items():
-        print(f'({key}) ' + f'with {round(value, 6)}')
+    lowest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=False)[:5]
+    print('\nLowest correlated are:')
+    for idx, (pair, val) in enumerate(lowest_corr, 1):
+        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
+    print()
 
     """" 8 """
-    season_avgs = df.groupby('season_name')['t_diff'].mean()
-    l_of_unique_seasons = df['season_name'].unique().tolist()
-    for season in l_of_unique_seasons:
-        avg_val = season_avgs[season]
-        print(f"{season} average t_diff is {round(avg_val, 2)}")
+    all_seasons = ['fall', 'spring', 'summer', 'winter']
+    all_seasons_average = df.groupby('season_name')['t_diff'].mean().round(2)
+    for season in all_seasons:
+        if season in all_seasons_average.index:
+            print(f"{season} average t_diff is {all_seasons_average[season]}")
 
-    overall_avg = df['t_diff'].mean()
-    print(f"All average t_diff is {overall_avg}")
-
-
-def find_best_cor(d1,used_best):
-    max =0
-    best_key =''
-    for key, value in d1.items():
-        if key not in used_best and value > max:
-            max = value
-            best_key = key
-            used_best.append(key)
-
-    return [best_key,max]
-
-
-def find_worst_cor(d1,used_worst):
-    min =1
-    worst_key =''
-    for key, value in d1.items():
-        if key not in used_worst and value < min:
-            min = value
-            worst_key = key
-            used_worst.append(key)
-
-    return [worst_key,min]
+    overall_average = df['t_diff'].mean()
+    print(f"All average t_diff is {round(overall_average, 2)}")
