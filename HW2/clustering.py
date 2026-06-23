@@ -54,24 +54,15 @@ def kmeans(data, k):
     * centroids - numpy array of shape (k, 2), centroid for each cluster.
     """
     initial_centroids = choose_initial_centroids(data, k)
-
     curr_centroids = initial_centroids
-    prev_centroids = initial_centroids
-    counter = 0
-    consecutive = True
-
     while True:
         prev_centroids = curr_centroids
         new_labels = assign_to_clusters(data, curr_centroids)
         curr_centroids = recompute_centroids(data, new_labels, k)
-
         if np.array_equal(prev_centroids, curr_centroids):
             break
-
-
     labels = np.array(new_labels)
     centroids = np.array(curr_centroids)
-
     return labels, centroids
 
 
@@ -83,17 +74,13 @@ def visualize_results(data, labels, centroids, path):
     :param centroids: the final centroids of kmeans, as numpy array of shape (k, 2)
     :param path: path to save the figure to.
     """
-
-    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis')
-    plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', color='black')
-
-    plt.xlabel('hum')
-    plt.ylabel('wind_speed')
-
-    plt.show()
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='tab10')
+    plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', color='black', edgecolors='black', s=100)
 
     k = centroids.shape[0]
     plt.title(f'Results for kmeans with k = {k}')
+    plt.xlabel('hum')
+    plt.ylabel('wind_speed')
 
     plt.savefig(path)
     plt.close('all')
@@ -117,20 +104,15 @@ def assign_to_clusters(data, centroids):
     :return: numpy array of size n
     """
     labels = []
-    
     for elemnt in data:
         min_dist = float('inf')
         closest_index = -1
-
         for i, centroid in enumerate(centroids):
             current_distance = dist(elemnt, centroid)
-
             if current_distance < min_dist:
                 min_dist = current_distance
                 closest_index = i
-
         labels.append(closest_index)
-
     return np.array(labels)
 
 
@@ -142,35 +124,19 @@ def recompute_centroids(data, labels, k):
     :param k: number of clusters
     :return: numpy array of shape (k, 2)
     """
-
-    unique_labels = np.unique(labels)
     centroids =[]
-    for unique_label in unique_labels:
-        same_group = get_list_with_label_l1(data, labels, unique_label)
+    for unique_label in range(k):
+        same_group = data[labels == unique_label]
         new_centroid_of_group = get_new_centroid_of_group(same_group)
         centroids.append(new_centroid_of_group)
-
     return np.array(centroids)
 
-def get_list_with_label_l1(data,labels,l1):
-    list_of_elements_with_label_l1 =[]
-    for index,element in enumerate(data):
-        if labels[index] == l1:
-            list_of_elements_with_label_l1.append(element)
-
-    return list_of_elements_with_label_l1
 
 def get_new_centroid_of_group(group):
-    new_centroid_of_group = []
-
-    sum_of_each_dim =[0.0,0.0]
-    num_of_elements = group.shape[0]
-
-    for element in group:
-        for index,value in enumerate(element):
-            sum_of_each_dim[index] += value
-
-    new_centroid_of_group.append(sum_of_each_dim[0]/num_of_elements)
-    new_centroid_of_group.append(sum_of_each_dim[1]/num_of_elements)
-
-    return new_centroid_of_group
+    """
+        Computes the new centroid of a cluster by calculating the mean
+        of all data points currently assigned to it.
+        :param group: numpy array of shape (m, 2) containing the points in the cluster
+        :return: list of 2 floats [mean_x, mean_y] representing the new centroid coordinates
+        """
+    return list(np.mean(group, axis=0))
