@@ -14,6 +14,7 @@ if __name__ == "__main__":
     data_analysis(df_transformed)
 
     # Part B
+    print()
     print("Part B: ")
     features = ['hum', 'wind_speed']
     kmeans_data = transform_data(df_transformed, features)

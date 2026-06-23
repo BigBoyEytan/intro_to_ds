@@ -12,10 +12,10 @@ def add_new_columns(df):
     all_seasons = ['spring','summer','fall','winter']
     df['season_name'] =df['season'].apply(lambda x: all_seasons[x])
 
-    df['hour'] = df['timestamp'].apply(lambda x: x.hour)
-    df['day'] = df['timestamp'].apply(lambda x: x.day)
-    df['month'] = df['timestamp'].apply(lambda x: x.month)
-    df['year'] = df['timestamp'].apply(lambda x: x.year)
+    df['Hour'] = df['timestamp'].apply(lambda x: x.hour)
+    df['Day'] = df['timestamp'].apply(lambda x: x.day)
+    df['Month'] = df['timestamp'].apply(lambda x: x.month)
+    df['Year'] = df['timestamp'].apply(lambda x: x.year)
 
     df['is_weekend_holiday'] = df.apply(get_weekend_holiday_num, axis=1)
 
@@ -43,7 +43,7 @@ def data_analysis(df):
     print(df.describe().to_string())
     print()
     print('corr output: ')
-    corr = df.corr(numeric_only=True)
+    corr = df.select_dtypes(include=['number']).corr()
     print(corr.to_string())
     print()
 
@@ -54,14 +54,14 @@ def data_analysis(df):
         for j in range(i+1, len(columns)):
             col1, col2 = columns[i], columns[j]
             all_columns_corr[(col1, col2)] = corr.loc[col1, col2]
-    
+
     highest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=True)[:5]
-    print('Highest correlated are:')
+    print('Highest correlated are: ')
     for idx, (pair, val) in enumerate(highest_corr, 1):
         print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
 
     lowest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=False)[:5]
-    print('\nLowest correlated are:')
+    print('\nLowest correlated are: ')
     for idx, (pair, val) in enumerate(lowest_corr, 1):
         print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
     print()
