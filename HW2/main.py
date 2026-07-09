@@ -7,11 +7,11 @@ from clustering import transform_data, kmeans, visualize_results
 if __name__ == "__main__":
     # Part A
     data_path = "london.csv"
-    print("Part A: ")
+    print("Part A:")
     df = load_data(data_path)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], dayfirst=True)
     df_transformed = add_new_columns(df)
-    data_analysis(df_transformed)
+    data_analysis(df_transformed.drop(columns=['timestamp']))
 
     # Part B
     print()

@@ -7,8 +7,23 @@ def load_data(path):
     return pd.read_csv(path)
 
 
+def get_weekend_holiday_num(row):
+    holiday = row['is_holiday']
+    weekend = row['is_weekend']
+    if holiday == 0 and weekend == 0:
+        return 1
+    elif holiday == 0 and weekend == 1:
+        return 2
+    elif holiday == 1 and weekend == 0:
+        return 3
+    elif holiday == 1 and weekend == 1:
+        return 4
+
+
 def add_new_columns(df):
     """adds columns to df and returns the new df"""
+    #df['timestamp'] = pd.to_datetime(df['timestamp'], dayfirst=True)
+
     all_seasons = ['spring','summer','fall','winter']
     df['season_name'] =df['season'].apply(lambda x: all_seasons[x])
 
@@ -23,27 +38,13 @@ def add_new_columns(df):
     return df
 
 
-def get_weekend_holiday_num(row):
-    holiday = row['is_holiday']
-    weekend = row['is_weekend']
-
-    if holiday == 0 and weekend == 0:
-        return 1
-    elif holiday == 0 and weekend == 1:
-        return 2
-    elif holiday == 1 and weekend == 0:
-        return 3
-    elif holiday == 1 and weekend == 1:
-        return 4
-
-
 def data_analysis(df):
     """prints statistics on the transformed df"""
-    print('describe output: ')
+    print('describe output:')
     print(df.describe().to_string())
     print()
-    print('corr output: ')
-    corr = df.select_dtypes(include=['number']).corr()
+    print('corr output:')
+    corr = df.corr(numeric_only = True)
     print(corr.to_string())
     print()
 
@@ -58,12 +59,12 @@ def data_analysis(df):
     highest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=True)[:5]
     print('Highest correlated are: ')
     for idx, (pair, val) in enumerate(highest_corr, 1):
-        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
+        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {abs(val):.6f}")
 
     lowest_corr = sorted(all_columns_corr.items(), key=lambda item: abs(item[1]), reverse=False)[:5]
     print('\nLowest correlated are: ')
     for idx, (pair, val) in enumerate(lowest_corr, 1):
-        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {round(val, 6)}")
+        print(f"{idx}. ('{pair[0]}', '{pair[1]}') with {abs(val):.6f}")
     print()
 
     """" 8 """
@@ -74,4 +75,4 @@ def data_analysis(df):
             print(f"{season} average t_diff is {all_seasons_average[season]}")
 
     overall_average = df['t_diff'].mean()
-    print(f"All average t_diff is {round(overall_average, 2)}")
+    print(f"All average t_diff is {overall_average:.2f}")

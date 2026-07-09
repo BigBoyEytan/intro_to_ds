@@ -59,7 +59,8 @@ def kmeans(data, k):
         prev_centroids = curr_centroids
         new_labels = assign_to_clusters(data, curr_centroids)
         curr_centroids = recompute_centroids(data, new_labels, k)
-        if np.array_equal(prev_centroids, curr_centroids):
+        #if np.array_equal(prev_centroids, curr_centroids):
+        if np.allclose(prev_centroids, curr_centroids):
             break
     labels = np.array(new_labels)
     centroids = np.array(curr_centroids)
@@ -74,6 +75,8 @@ def visualize_results(data, labels, centroids, path):
     :param centroids: the final centroids of kmeans, as numpy array of shape (k, 2)
     :param path: path to save the figure to.
     """
+    plt.figure()
+
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='tab10')
     plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', color='black', edgecolors='black', s=100)
 
@@ -104,11 +107,11 @@ def assign_to_clusters(data, centroids):
     :return: numpy array of size n
     """
     labels = []
-    for elemnt in data:
+    for element in data:
         min_dist = float('inf')
         closest_index = -1
         for i, centroid in enumerate(centroids):
-            current_distance = dist(elemnt, centroid)
+            current_distance = dist(element, centroid)
             if current_distance < min_dist:
                 min_dist = current_distance
                 closest_index = i
